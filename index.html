@@ -341,11 +341,12 @@
   .overlay.show{display:grid;animation:fade .25s ease}
 
   .modal{
-    width:100%;max-width:460px;background:#fff;
+    width:100%;max-width:480px;background:#fff;
     border-radius:28px;padding:30px 26px;
     box-shadow:0 40px 80px rgba(0,0,0,.4);
     animation:pop .4s cubic-bezier(.2,.9,.3,1.3);
     position:relative;overflow:hidden;
+    max-height:calc(100vh - 40px);overflow-y:auto;
   }
   .modal::before{
     content:"";position:absolute;top:0;left:0;right:0;height:4px;
@@ -407,62 +408,86 @@
   .modal-actions{display:flex;gap:10px;margin-top:8px}
   .modal-actions .btn{flex:1}
 
-  .webview{
-    position:fixed;inset:0;z-index:200;display:none;flex-direction:column;
-    background:#0f1526;animation:fade .22s ease;
+  .session-overlay{
+    position:fixed;inset:0;z-index:200;display:none;
+    place-items:center;
+    background:rgba(15,21,38,.78);
+    -webkit-backdrop-filter:blur(12px);
+            backdrop-filter:blur(12px);
+    padding:20px;
+    animation:fade .3s ease;
   }
-  .webview.show{display:flex}
-  .wv-bar{
-    display:flex;align-items:center;gap:10px;
-    padding:10px 14px;background:linear-gradient(135deg,#141c33,#1e2947);
-    color:#fff;flex:0 0 auto;
-    box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:2;
-  }
-  .wv-back{
-    display:flex;align-items:center;gap:6px;
-    height:40px;padding:0 18px;flex:0 0 auto;
-    border:none;border-radius:13px;
-    background:linear-gradient(135deg,#4f7cff,#8b5cf6);
-    color:#fff;font-family:'Nunito',sans-serif;
-    font-size:14px;font-weight:900;cursor:pointer;
-    box-shadow:0 6px 16px rgba(79,124,255,.4);
-    transition:transform .15s ease, box-shadow .15s ease;
-    white-space:nowrap;
-  }
-  .wv-back:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(79,124,255,.55)}
-  .wv-back:active{transform:translateY(1px) scale(.98)}
-  .wv-title{
-    font-family:'Baloo 2',cursive;font-size:18px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    min-width:0;flex:1;
-  }
-  .wv-external{
-    color:#9db4ff;font-weight:900;font-size:13px;
-    text-decoration:none;padding:9px 14px;border-radius:11px;
-    background:#1e2947;white-space:nowrap;transition:background .2s;
-    flex:0 0 auto;
-  }
-  .wv-external:hover{background:#2a3860;color:#c8d6ff}
-  .wv-note{
-    flex:0 0 auto;background:linear-gradient(90deg,#fff7e6,#fef3c7);
-    color:#8a5a00;font-size:12.5px;font-weight:800;text-align:center;
-    padding:8px 14px;line-height:1.4;
-  }
-  .wv-body{flex:1;position:relative;background:#fff;min-height:0}
-  #wvFrame{width:100%;height:100%;border:0;display:block;background:#fff}
+  .session-overlay.show{display:grid}
 
-  .wv-loader{
-    position:absolute;inset:0;display:grid;place-items:center;
-    background:#fff;pointer-events:none;opacity:0;
-    transition:opacity .3s ease;z-index:1;
+  .session-card{
+    width:100%;max-width:420px;
+    background:linear-gradient(160deg,#ffffff 0%,#f4f7ff 100%);
+    border-radius:32px;padding:36px 28px 30px;
+    box-shadow:0 40px 90px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.4) inset;
+    text-align:center;
+    animation:pop .45s cubic-bezier(.2,.9,.3,1.3);
+    position:relative;overflow:hidden;
   }
-  .wv-loader.show{opacity:1}
-  .spinner{
-    width:48px;height:48px;border-radius:50%;
-    border:4px solid #e3eaff;border-top-color:#8b5cf6;
-    animation:spin .9s linear infinite;
+  .session-card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:5px;
+    background:linear-gradient(90deg,#4f7cff,#8b5cf6,#ec4899,#fbbf24,#22c55e);
+    background-size:300% 100%;
+    animation:rainbowShift 5s linear infinite;
   }
-  @keyframes spin{to{transform:rotate(360deg)}}
+  .session-icon{
+    width:96px;height:96px;margin:0 auto 18px;
+    border-radius:28px;display:grid;place-items:center;
+    font-size:44px;color:#fff;
+    box-shadow:0 16px 34px rgba(0,0,0,.22), inset 0 -4px 0 rgba(0,0,0,.15);
+    animation:float 3s ease-in-out infinite;
+  }
+  .session-title{
+    font-family:'Baloo 2',cursive;font-size:28px;color:#22315a;
+    margin-bottom:6px;line-height:1.15;
+  }
+  .session-status{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#dcfce7;color:#166534;
+    font-weight:900;font-size:12px;
+    padding:6px 14px;border-radius:99px;
+    letter-spacing:.08em;text-transform:uppercase;
+    margin-bottom:20px;
+  }
+  .session-status .pulse-dot{
+    width:8px;height:8px;border-radius:50%;background:#22c55e;
+    box-shadow:0 0 0 0 rgba(34,197,94,.7);
+    animation:pulseDot 1.5s infinite;
+  }
+  @keyframes pulseDot{
+    0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}
+    70%{box-shadow:0 0 0 12px rgba(34,197,94,0)}
+    100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
+  }
+  .session-desc{
+    color:#5a6a8c;font-weight:700;font-size:14.5px;
+    line-height:1.6;margin-bottom:24px;
+    padding:0 6px;
+  }
+  .session-desc strong{color:#22315a}
+  .session-actions{display:flex;flex-direction:column;gap:10px}
+  .session-actions .btn{width:100%}
+  .session-note{
+    margin-top:18px;padding:12px 14px;
+    background:#fff7e6;border-radius:14px;
+    color:#8a5a00;font-weight:700;font-size:12px;
+    line-height:1.5;text-align:left;
+  }
+  .session-note strong{display:block;margin-bottom:3px;font-weight:900;color:#7a4a00}
+  .btn-danger{
+    background:linear-gradient(135deg,#f87171,#ef4444);
+    color:#fff;
+    box-shadow:0 10px 22px rgba(239,68,68,.4), 0 4px 0 rgba(180,20,20,.55), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-danger:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 30px rgba(239,68,68,.55), 0 5px 0 rgba(180,20,20,.55), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .btn-danger:active{transform:translateY(2px)}
 
   .confetti{
     position:fixed;inset:0;pointer-events:none;z-index:150;
@@ -484,9 +509,10 @@
     .answer-row{flex-direction:column;align-items:center}
     #answerInput{max-width:100%;width:100%}
     .answer-row .btn{width:100%}
-    .wv-title{font-size:15px}
-    .wv-external{padding:8px 10px;font-size:12px}
     .sound-toggle{width:44px;height:44px;font-size:20px;top:12px;right:12px}
+    .session-card{padding:28px 20px 24px}
+    .session-icon{width:80px;height:80px;font-size:38px}
+    .session-title{font-size:24px}
   }
 </style>
 </head>
@@ -631,18 +657,27 @@
   </div>
 </div>
 
-<div class="webview" id="webview">
-  <div class="wv-bar">
-    <button class="wv-back" id="wvBack" title="Volver a la selección">← Volver</button>
-    <div class="wv-title" id="wvTitle">Navegador</div>
-    <a class="wv-external" id="wvExternal" href="#" target="_blank" rel="noopener noreferrer">Abrir ↗</a>
-  </div>
-  <div class="wv-note" id="wvNote">
-    Cargando vía corsproxy.io…
-  </div>
-  <div class="wv-body">
-    <div class="wv-loader show" id="wvLoader"><div class="spinner"></div></div>
-    <iframe id="wvFrame" src="about:blank" referrerpolicy="no-referrer" allow="clipboard-write; fullscreen"></iframe>
+<div class="session-overlay" id="sessionOverlay">
+  <div class="session-card">
+    <div class="session-icon" id="sessionIcon">🤖</div>
+    <div class="session-title" id="sessionTitle">ChatGPT</div>
+    <div class="session-status">
+      <span class="pulse-dot"></span> Sesión activa
+    </div>
+    <p class="session-desc" id="sessionDesc">
+      El sitio se abrió en una <strong>ventana independiente</strong>. Interactúa con él ahí con normalidad.
+    </p>
+
+    <div class="session-actions">
+      <button class="btn btn-primary" id="btnFocus">Traer al frente ↗</button>
+      <button class="btn btn-danger" id="btnCloseSession">Cerrar sesión</button>
+      <button class="btn btn-ghost" id="btnKeepPlaying">Seguir jugando en segundo plano</button>
+    </div>
+
+    <div class="session-note">
+      <strong>¿Por qué en ventana y no aquí dentro?</strong>
+      Sitios como ChatGPT, Gemini, YouTube, TikTok e Instagram <em>prohíben</em> ser mostrados dentro de iframes por seguridad (X-Frame-Options + CSP). Es una regla del navegador, no del juego. La ventana popup es la única forma 100% funcional.
+    </div>
   </div>
 </div>
 
@@ -650,24 +685,19 @@
 
 <script>
 const TOTAL = 100;
-const CORSPROXY_KEY = 'be85a823';
 
 const PROVEEDORES = {
-  chatgpt:   { nombre: 'ChatGPT',   url: 'https://chatgpt.com/' },
-  gemini:    { nombre: 'Gemini',    url: 'https://gemini.google.com/app' },
-  deepseek:  { nombre: 'DeepSeek',  url: 'https://chat.deepseek.com/' },
-  grok:      { nombre: 'Grok',      url: 'https://grok.com/' },
-  poki:      { nombre: 'Poki',      url: 'https://poki.com/' },
-  youtube:   { nombre: 'YouTube',   url: 'https://www.youtube.com/' },
-  tiktok:    { nombre: 'TikTok',    url: 'https://www.tiktok.com/' },
-  instagram: { nombre: 'Instagram', url: 'https://www.instagram.com/' }
+  chatgpt:   { nombre: 'ChatGPT',   url: 'https://chatgpt.com/', icon: '🤖', color: '#10a37f' },
+  gemini:    { nombre: 'Gemini',    url: 'https://gemini.google.com/app', icon: '✨', color: 'linear-gradient(135deg,#4285f4,#9b72cb)' },
+  deepseek:  { nombre: 'DeepSeek',  url: 'https://chat.deepseek.com/', icon: '🐋', color: '#4d6bfe' },
+  grok:      { nombre: 'Grok',      url: 'https://grok.com/', icon: '🚀', color: '#15171c' },
+  poki:      { nombre: 'Poki',      url: 'https://poki.com/', icon: '🎮', color: 'linear-gradient(135deg,#ff4d6d,#ff8a3d)' },
+  youtube:   { nombre: 'YouTube',   url: 'https://www.youtube.com/', icon: '▶️', color: '#ff0000' },
+  tiktok:    { nombre: 'TikTok',    url: 'https://www.tiktok.com/', icon: '🎵', color: 'linear-gradient(135deg,#25f4ee,#000,#fe2c55)' },
+  instagram: { nombre: 'Instagram', url: 'https://www.instagram.com/', icon: '📸', color: 'linear-gradient(135deg,#feda75,#d62976,#962fbf,#4f5bd5)' }
 };
 
 const PALABRAS_PROHIBIDAS = ['gore', 'porn'];
-
-function buildProxyUrl(target){
-  return 'https://corsproxy.io/?key=' + CORSPROXY_KEY + '&url=' + encodeURIComponent(target);
-}
 
 const state = {
   questions: [],
@@ -678,6 +708,12 @@ const state = {
   running: false,
   pausedAt: null,
   soundOn: true
+};
+
+const session = {
+  popup: null,
+  watcher: null,
+  provider: null
 };
 
 const $ = id => document.getElementById(id);
@@ -701,9 +737,7 @@ function beep({freq=440, dur=0.08, type='sine', vol=0.12, slideTo=null, when=0})
   const gain = a.createGain();
   osc.type = type;
   osc.frequency.setValueAtTime(freq, t0);
-  if (slideTo){
-    osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
-  }
+  if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
   gain.gain.setValueAtTime(0.0001, t0);
   gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
@@ -712,17 +746,13 @@ function beep({freq=440, dur=0.08, type='sine', vol=0.12, slideTo=null, when=0})
   osc.stop(t0 + dur + 0.05);
 }
 
-function soundClick(){
-  beep({freq:520, dur:0.06, type:'triangle', vol:0.09});
-}
+function soundClick(){ beep({freq:520, dur:0.06, type:'triangle', vol:0.09}); }
 function soundCorrect(){
   beep({freq:660, dur:0.09, type:'sine', vol:0.13});
   beep({freq:880, dur:0.11, type:'sine', vol:0.13, when:0.07});
   beep({freq:1175, dur:0.14, type:'sine', vol:0.11, when:0.15});
 }
-function soundWrong(){
-  beep({freq:220, dur:0.18, type:'sawtooth', vol:0.10, slideTo:120});
-}
+function soundWrong(){ beep({freq:220, dur:0.18, type:'sawtooth', vol:0.10, slideTo:120}); }
 function soundSecret(){
   beep({freq:523, dur:0.10, type:'triangle', vol:0.12});
   beep({freq:659, dur:0.10, type:'triangle', vol:0.12, when:0.09});
@@ -730,8 +760,7 @@ function soundSecret(){
   beep({freq:1047, dur:0.20, type:'triangle', vol:0.13, when:0.27});
 }
 function soundVictory(){
-  const notes = [523, 659, 784, 1047, 1319];
-  notes.forEach((f, i) => {
+  [523, 659, 784, 1047, 1319].forEach((f, i) => {
     beep({freq:f, dur:0.16, type:'triangle', vol:0.13, when:i * 0.12});
   });
   beep({freq:1568, dur:0.5, type:'sine', vol:0.12, when:0.65});
@@ -741,10 +770,12 @@ function soundStart(){
   beep({freq:523, dur:0.10, type:'triangle', vol:0.11, when:0.07});
   beep({freq:659, dur:0.14, type:'triangle', vol:0.12, when:0.15});
 }
-
-function randInt(min, max){
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function soundPopup(){
+  beep({freq:880, dur:0.09, type:'triangle', vol:0.11});
+  beep({freq:1175, dur:0.14, type:'triangle', vol:0.11, when:0.08});
 }
+
+function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -767,9 +798,7 @@ function pulse(el){
 
 function buildQuestions(){
   const arr = [];
-  for (let i = 0; i < TOTAL; i++){
-    arr.push({ a: randInt(1, 12), b: randInt(1, 12) });
-  }
+  for (let i = 0; i < TOTAL; i++) arr.push({ a: randInt(1, 12), b: randInt(1, 12) });
   return arr;
 }
 
@@ -843,10 +872,7 @@ function checkAnswer(){
     soundCorrect();
     feedback('¡Correcto! 🎉', 'ok');
     state.idx++;
-    if (state.idx >= TOTAL){
-      finishGame();
-      return;
-    }
+    if (state.idx >= TOTAL){ finishGame(); return; }
     renderQuestion();
   } else {
     soundWrong();
@@ -935,51 +961,131 @@ function cerrarSecreto(){
   }
 }
 
-function abrirWebview(nombre, url){
-  $('wvTitle').textContent = nombre;
-  $('wvExternal').href = url;
+function abrirWebview(prov, url){
+  const info = PROVEEDORES[prov] || { nombre: 'Sitio', icon: '🌐', color: 'linear-gradient(135deg,#4f7cff,#8b5cf6)' };
 
-  const proxied = buildProxyUrl(url);
-  const loader = $('wvLoader');
-  loader.classList.add('show');
+  const w = Math.min(520, screen.availWidth - 60);
+  const h = Math.min(Math.round(screen.availHeight * 0.92), 900);
+  const left = Math.round((screen.availWidth - w) / 2);
+  const top = Math.max(0, Math.round((screen.availHeight - h) / 2));
 
-  const frame = $('wvFrame');
-  frame.onload = () => {
-    setTimeout(() => loader.classList.remove('show'), 400);
+  const features = [
+    'popup=yes',
+    'width=' + w,
+    'height=' + h,
+    'left=' + left,
+    'top=' + top,
+    'menubar=no',
+    'toolbar=no',
+    'location=yes',
+    'status=no',
+    'resizable=yes',
+    'scrollbars=yes',
+    'noopener=no'
+  ].join(',');
+
+  let popup = null;
+  try {
+    popup = window.open(url, 'mv_' + prov + '_' + Date.now(), features);
+  } catch(e){ popup = null; }
+
+  if (!popup || popup.closed || typeof popup.closed === 'undefined'){
+    $('secretModal').classList.remove('show');
+    mostrarBloqueo(info, url);
+    return;
+  }
+
+  session.popup = popup;
+  session.provider = prov;
+
+  try { popup.focus(); } catch(e){}
+
+  soundPopup();
+  $('secretModal').classList.remove('show');
+
+  $('sessionIcon').textContent = info.icon;
+  $('sessionIcon').style.background = info.color;
+  $('sessionTitle').textContent = info.nombre;
+  $('sessionDesc').innerHTML = `Se abrió <strong>${info.nombre}</strong> en una ventana independiente. Interactúa con él ahí con normalidad.`;
+
+  $('sessionOverlay').classList.add('show');
+
+  clearInterval(session.watcher);
+  session.watcher = setInterval(() => {
+    if (!session.popup || session.popup.closed){
+      cerrarSesion(true);
+    }
+  }, 700);
+}
+
+function mostrarBloqueo(info, url){
+  $('sessionIcon').textContent = '⚠️';
+  $('sessionIcon').style.background = 'linear-gradient(135deg,#fbbf24,#f97316)';
+  $('sessionTitle').textContent = 'Ventana bloqueada';
+  $('sessionDesc').innerHTML = `Tu navegador bloqueó la ventana emergente de <strong>${info.nombre}</strong>. Pulsa «Traer al frente» para abrirla de nuevo, o permite ventanas emergentes para este sitio.`;
+
+  $('sessionOverlay').classList.add('show');
+  session.popup = null;
+  session.provider = null;
+
+  $('btnFocus').onclick = () => {
+    soundClick();
+    const w = Math.min(520, screen.availWidth - 60);
+    const h = Math.min(Math.round(screen.availHeight * 0.92), 900);
+    const left = Math.round((screen.availWidth - w) / 2);
+    const top = Math.max(0, Math.round((screen.availHeight - h) / 2));
+    const features = `popup=yes,width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=no,location=yes,status=no,resizable=yes,scrollbars=yes`;
+    const p = window.open(url, 'mv_retry_' + Date.now(), features);
+    if (p && !p.closed){
+      session.popup = p;
+      try { p.focus(); } catch(e){}
+      $('sessionOverlay').classList.remove('show');
+      clearInterval(session.watcher);
+      session.watcher = setInterval(() => {
+        if (!session.popup || session.popup.closed) cerrarSesion(true);
+      }, 700);
+    }
   };
-
-  setTimeout(() => loader.classList.remove('show'), 14000);
-  frame.src = proxied;
-
-  $('wvNote').textContent = `🛡️ Bypass activo vía corsproxy.io · ${nombre}`;
-
-  $('webview').classList.add('show');
-  document.body.style.overflow = 'hidden';
 }
 
-function cerrarWebview(){
-  $('webview').classList.remove('show');
-  $('wvFrame').src = 'about:blank';
-  $('wvLoader').classList.remove('show');
-  document.body.style.overflow = '';
+function cerrarSesion(silent){
+  if (!silent) soundClick();
+  if (session.popup && !session.popup.closed){
+    try { session.popup.close(); } catch(e){}
+  }
+  session.popup = null;
+  session.provider = null;
+  clearInterval(session.watcher);
+  session.watcher = null;
+  $('sessionOverlay').classList.remove('show');
 }
 
-function volverASeleccion(){
-  cerrarWebview();
-  $('secretModal').classList.add('show');
+function traerAlFrente(){
+  soundClick();
+  if (session.popup && !session.popup.closed){
+    try { session.popup.focus(); } catch(e){}
+  }
+}
+
+function seguirJugando(){
+  soundClick();
+  $('sessionOverlay').classList.remove('show');
+  if (!state.running && state.pausedAt !== null){
+    state.start += performance.now() - state.pausedAt;
+    state.pausedAt = null;
+    state.running = true;
+    clearInterval(state.timer);
+    state.timer = setInterval(tick, 50);
+    setTimeout(() => $('answerInput').focus(), 60);
+  }
 }
 
 function normalizarTexto(str){
   return String(str)
     .toLowerCase()
-    .replace(/0/g, 'o')
-    .replace(/1/g, 'i')
-    .replace(/3/g, 'e')
-    .replace(/4/g, 'a')
-    .replace(/5/g, 's')
-    .replace(/7/g, 't')
-    .replace(/@/g, 'a')
-    .replace(/\$/g, 's')
+    .replace(/0/g, 'o').replace(/1/g, 'i').replace(/3/g, 'e')
+    .replace(/4/g, 'a').replace(/5/g, 's').replace(/7/g, 't')
+    .replace(/@/g, 'a').replace(/\$/g, 's')
     .replace(/[^a-z]/g, '');
 }
 
@@ -1003,7 +1109,7 @@ function validarUrl(entrada){
     return { ok: false, msg: 'Solo se permiten enlaces http o https.' };
   }
   if (contieneProhibido(url)){
-    return { ok: false, msg: '🚫 Enlace bloqueado: contiene contenido no permitido (violencia explícita o contenido adulto).' };
+    return { ok: false, msg: '🚫 Enlace bloqueado: contiene contenido no permitido.' };
   }
   return { ok: true, url: parsed.href };
 }
@@ -1029,7 +1135,7 @@ document.querySelectorAll('.provider').forEach(btn => {
       return;
     }
     const info = PROVEEDORES[prov];
-    if (info) abrirWebview(info.nombre, info.url);
+    if (info) abrirWebview(prov, info.url);
   });
 });
 
@@ -1050,14 +1156,16 @@ $('customOpen').addEventListener('click', () => {
   soundClick();
   $('customError').textContent = '';
   $('customModal').classList.remove('show');
-  abrirWebview('Enlace personalizado', resultado.url);
+  abrirWebview('custom', resultado.url);
 });
 
 $('customUrl').addEventListener('keydown', e => {
   if (e.key === 'Enter'){ e.preventDefault(); $('customOpen').click(); }
 });
 
-$('wvBack').addEventListener('click', () => { soundClick(); volverASeleccion(); });
+$('btnFocus').addEventListener('click', traerAlFrente);
+$('btnCloseSession').addEventListener('click', () => cerrarSesion(false));
+$('btnKeepPlaying').addEventListener('click', seguirJugando);
 
 $('soundToggle').addEventListener('click', () => {
   state.soundOn = !state.soundOn;
@@ -1069,14 +1177,14 @@ $('soundToggle').addEventListener('click', () => {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){
-    if ($('webview').classList.contains('show')) { volverASeleccion(); return; }
+    if ($('sessionOverlay').classList.contains('show')) { seguirJugando(); return; }
     if ($('customModal').classList.contains('show')) { $('customModal').classList.remove('show'); return; }
     if ($('secretModal').classList.contains('show')) { cerrarSecreto(); return; }
   }
   if (!state.running) return;
   if ($('secretModal').classList.contains('show')) return;
   if ($('customModal').classList.contains('show')) return;
-  if ($('webview').classList.contains('show')) return;
+  if ($('sessionOverlay').classList.contains('show')) return;
 
   const input = $('answerInput');
   if (document.activeElement !== input && /^[0-9]$/.test(e.key)){
