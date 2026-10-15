@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desafío Matemático · 100 Multiplicaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --ink:#1f2a44;
+    --muted:#6b7a99;
+    --blue:#4f7cff;
+    --violet:#8b5cf6;
+    --green:#22c55e;
+    --red:#ef4444;
+    --yellow:#fbbf24;
+    --radius:26px;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 600px at 12% 8%, #dbe7ff 0%, transparent 60%),
+      radial-gradient(800px 600px at 88% 12%, #eadcff 0%, transparent 60%),
+      radial-gradient(900px 700px at 50% 110%, #ccf7e5 0%, transparent 60%),
+      #f4f7ff;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(79,124,255,.075) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,124,255,.075) 1px, transparent 1px);
+    background-size:34px 34px;
+    -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
+            mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
+  }
+
+  .app{width:100%;max-width:680px;position:relative;z-index:1}
+
+  .topbar{text-align:center;margin-bottom:22px}
+  .logo{
+    width:78px;height:78px;margin:0 auto 14px;
+    display:grid;place-items:center;font-size:38px;
+    background:linear-gradient(135deg,#ffffff,#eef3ff);
+    border-radius:24px;border:2px solid #fff;
+    box-shadow:0 14px 30px rgba(79,124,255,.24), inset 0 -4px 0 rgba(79,124,255,.10);
+    animation:float 3.5s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  h1{
+    font-family:'Baloo 2',cursive;
+    font-size:clamp(28px,6vw,42px);
+    margin:0 0 6px;line-height:1.1;
+    background:linear-gradient(90deg,#4f7cff,#8b5cf6,#22c55e);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{margin:0;color:var(--muted);font-weight:700;font-size:15px}
+
+  .card{
+    background:rgba(255,255,255,.88);
+    -webkit-backdrop-filter:blur(14px);
+            backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.95);
+    border-radius:var(--radius);
+    box-shadow:0 26px 60px rgba(31,42,68,.15), inset 0 2px 0 rgba(255,255,255,.9);
+    padding:30px 28px;
+  }
+
+  .screen{display:none}
+  .screen.active{display:block;animation:pop .35s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .btn{
+    font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;
+    border:none;border-radius:16px;padding:14px 28px;cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .2s;
+  }
+  .btn-primary{
+    color:#fff;
+    background:linear-gradient(135deg,#5b8cff,#8b5cf6);
+    box-shadow:0 12px 24px rgba(91,140,255,.38), inset 0 -3px 0 rgba(0,0,0,.13);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(91,140,255,.48)}
+  .btn-primary:active{transform:translateY(1px) scale(.99)}
+  .btn-ghost{
+    background:#f2f5ff;color:#42507a;border:2px solid #e3e9ff;
+    font-size:15px;padding:12px 20px;
+  }
+  .btn-ghost:hover{background:#e8eeff}
+
+  .hero-emoji{font-size:64px;text-align:center;line-height:1;margin-bottom:8px}
+  .screen h2{
+    font-family:'Baloo 2',cursive;text-align:center;
+    font-size:28px;margin:0 0 12px;color:#22315a;
+  }
+  .screen p.desc{
+    text-align:center;color:var(--muted);font-weight:600;
+    line-height:1.65;margin:0 auto 24px;max-width:440px;
+  }
+  .center{text-align:center}
+  .badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+  .badge{
+    background:#f4f7ff;border:1px solid #e3eaff;border-radius:99px;
+    padding:8px 16px;font-weight:800;font-size:13px;color:#4a5a83;
+  }
+
+  .hud{display:flex;gap:12px;margin-bottom:16px}
+  .hud-item{
+    flex:1;background:#f4f7ff;border:1px solid #e3eaff;
+    border-radius:16px;padding:10px 8px;text-align:center;
+  }
+  .hud-label{
+    display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);font-weight:900;margin-bottom:2px;
+  }
+  .hud-value{display:block;font-family:'Baloo 2',cursive;font-size:22px;color:var(--blue)}
+
+  .progress{height:10px;background:#e8eefc;border-radius:99px;overflow:hidden;margin-bottom:28px}
+  .progress-fill{
+    height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,#4f7cff,#8b5cf6,#22c55e);
+    transition:width .3s ease;
+  }
+
+  .question{
+    font-family:'Baloo 2',cursive;
+    font-size:clamp(44px,11vw,68px);
+    text-align:center;letter-spacing:3px;
+    margin:6px 0 24px;color:#22315a;user-select:none;
+  }
+  .question .op{color:var(--violet)}
+
+  .answer-row{display:flex;gap:12px;justify-content:center;align-items:stretch}
+  #answerInput{
+    flex:1;max-width:260px;min-width:0;
+    font-family:'Baloo 2',cursive;font-size:30px;text-align:center;
+    padding:10px 16px;border-radius:16px;
+    border:3px solid #dbe4ff;background:#fff;color:#22315a;
+    outline:none;transition:border-color .2s, box-shadow .2s;
+  }
+  #answerInput::placeholder{color:#c3cde8}
+  #answerInput:focus{border-color:var(--blue);box-shadow:0 0 0 6px rgba(79,124,255,.15)}
+
+  .feedback{min-height:28px;text-align:center;margin-top:16px;font-weight:900;font-size:16px}
+  .feedback.ok{color:var(--green)}
+  .feedback.bad{color:var(--red)}
+
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px)}
+    20%,80%{transform:translateX(4px)}
+    30%,50%,70%{transform:translateX(-8px)}
+    40%,60%{transform:translateX(8px)}
+  }
+  .shake{animation:shake .5s}
+
+  .medal{font-size:72px;text-align:center;line-height:1;margin-bottom:6px}
+  .result-time{
+    font-family:'Baloo 2',cursive;font-size:clamp(52px,14vw,78px);
+    text-align:center;line-height:1;color:var(--blue);margin:8px 0 2px;
+  }
+  .result-unit{text-align:center;color:var(--muted);font-weight:800;letter-spacing:.12em;
+    text-transform:uppercase;font-size:12px;margin-bottom:20px}
+  .result-grid{display:flex;gap:12px;margin-bottom:22px}
+  .result-box{
+    flex:1;background:#f4f7ff;border:1px solid #e3eaff;border-radius:18px;
+    padding:16px 10px;text-align:center;
+  }
+  .result-box .k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);font-weight:900;margin-bottom:4px}
+  .result-box .v{font-family:'Baloo 2',cursive;font-size:30px;color:#22315a}
+  .res-msg{
+    text-align:center;font-weight:900;font-size:19px;color:#22315a;margin-bottom:24px;
+  }
+
+  .overlay{
+    position:fixed;inset:0;display:none;place-items:center;
+    background:rgba(23,32,56,.55);
+    -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
+    padding:20px;z-index:100;overflow-y:auto;
+  }
+  .overlay.show{display:grid;animation:fade .25s ease}
+
+  .modal{
+    width:100%;max-width:440px;background:#fff;border-radius:26px;
+    padding:28px 24px;box-shadow:0 30px 70px rgba(0,0,0,.35);
+    animation:pop .3s ease;
+  }
+  .modal-emoji{font-size:46px;text-align:center;line-height:1;margin-bottom:8px}
+  .modal h3{
+    font-family:'Baloo 2',cursive;font-size:26px;text-align:center;
+    margin:0 0 6px;color:#22315a;
+  }
+  .modal-sub{
+    text-align:center;color:var(--muted);font-weight:700;
+    font-size:14px;margin:0 0 18px;line-height:1.55;
+  }
+
+  .providers{display:grid;gap:10px;margin-bottom:18px}
+  .provider{
+    display:flex;align-items:center;gap:14px;
+    padding:12px 16px;border-radius:16px;
+    border:2px solid #eef2ff;background:#fff;cursor:pointer;
+    font-family:'Nunito',sans-serif;font-weight:900;font-size:17px;
+    color:#22315a;text-align:left;width:100%;
+    transition:transform .16s ease, box-shadow .16s ease, border-color .16s;
+  }
+  .provider:hover{transform:translateY(-2px);box-shadow:0 14px 26px rgba(31,42,68,.13);border-color:#dbe4ff}
+  .provider .dot{
+    width:40px;height:40px;flex:0 0 40px;border-radius:13px;
+    display:grid;place-items:center;font-size:19px;color:#fff;
+  }
+  .provider .arrow{margin-left:auto;color:#c3cde8;font-weight:900}
+
+  .full{width:100%}
+
+  #customUrl{
+    width:100%;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;
+    padding:14px 16px;border-radius:14px;border:2px solid #dbe4ff;
+    outline:none;color:#22315a;transition:.2s;background:#fbfcff;
+  }
+  #customUrl:focus{border-color:var(--blue);box-shadow:0 0 0 5px rgba(79,124,255,.14);background:#fff}
+  .custom-error{
+    color:var(--red);font-weight:800;font-size:13.5px;
+    min-height:20px;margin:10px 2px 4px;line-height:1.4;
+  }
+  .modal-actions{display:flex;gap:10px;margin-top:8px}
+  .modal-actions .btn{flex:1}
+
+  .webview{
+    position:fixed;inset:0;z-index:200;display:none;flex-direction:column;
+    background:#0f1526;animation:fade .22s ease;
+  }
+  .webview.show{display:flex}
+  .wv-bar{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;background:#141c33;color:#fff;flex:0 0 auto;
+    box-shadow:0 4px 18px rgba(0,0,0,.35);z-index:2;
+  }
+  .wv-back{
+    display:flex;align-items:center;gap:6px;
+    height:38px;padding:0 16px;flex:0 0 auto;
+    border:none;border-radius:12px;
+    background:linear-gradient(135deg,#4f7cff,#8b5cf6);
+    color:#fff;font-family:'Nunito',sans-serif;
+    font-size:14px;font-weight:900;cursor:pointer;
+    box-shadow:0 6px 14px rgba(79,124,255,.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+    white-space:nowrap;
+  }
+  .wv-back:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(79,124,255,.45)}
+  .wv-back:active{transform:translateY(1px) scale(.98)}
+  .wv-title{
+    font-family:'Baloo 2',cursive;font-size:18px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    min-width:0;
+  }
+  .wv-external{
+    margin-left:auto;color:#9db4ff;font-weight:900;font-size:13px;
+    text-decoration:none;padding:8px 14px;border-radius:12px;
+    background:#1e2947;white-space:nowrap;transition:background .2s;
+    flex:0 0 auto;
+  }
+  .wv-external:hover{background:#2a3860}
+  .wv-note{
+    flex:0 0 auto;background:#fff7e6;color:#8a5a00;
+    font-size:12.5px;font-weight:800;text-align:center;
+    padding:7px 14px;line-height:1.4;
+  }
+  .wv-body{flex:1;position:relative;background:#fff;min-height:0}
+  #wvFrame{width:100%;height:100%;border:0;display:block;background:#fff}
+
+  @media (max-width:520px){
+    .card{padding:24px 18px}
+    .hud{gap:8px}
+    .hud-value{font-size:19px}
+    .answer-row{flex-direction:column;align-items:center}
+    #answerInput{max-width:100%;width:100%}
+    .answer-row .btn{width:100%}
+    .wv-title{font-size:15px}
+    .wv-external{padding:8px 10px;font-size:12px}
+    .wv-back{padding:0 12px;font-size:13px}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="logo">🧮</div>
+    <h1>Desafío Matemático</h1>
+    <p class="sub">100 multiplicaciones · ¡Demuestra lo rápido que eres!</p>
+  </header>
+
+  <main class="card">
+
+    <section id="startScreen" class="screen active">
+      <div class="hero-emoji">🚀</div>
+      <h2>¿Listo para el reto?</h2>
+      <p class="desc">
+        Resuelve <strong>100 multiplicaciones</strong> lo más rápido que puedas.
+        El cronómetro arranca en cuanto pulses <em>Comenzar</em> y se detiene al terminar la última cuenta.
+      </p>
+      <div class="badges">
+        <span class="badge">⏱️ Cronómetro</span>
+        <span class="badge">✖️ Tablas del 1 al 12</span>
+        <span class="badge">🎯 100 preguntas</span>
+      </div>
+      <div class="center">
+        <button class="btn btn-primary" id="btnStart">Comenzar 🎯</button>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen">
+      <div class="hud">
+        <div class="hud-item">
+          <span class="hud-label">Pregunta</span>
+          <span class="hud-value" id="hudProgress">1 / 100</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Tiempo</span>
+          <span class="hud-value" id="hudTime">0.0 s</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Errores</span>
+          <span class="hud-value" id="hudErrors">0</span>
+        </div>
+      </div>
+
+      <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="question" id="question">7 × 8</div>
+
+      <form class="answer-row" id="answerForm" autocomplete="off">
+        <input id="answerInput" type="text" inputmode="numeric" placeholder="?" autocomplete="off" spellcheck="false">
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </form>
+
+      <div class="feedback" id="feedback"></div>
+    </section>
+
+    <section id="resultScreen" class="screen">
+      <div class="medal" id="resMedal">🏆</div>
+      <h2>¡Completado!</h2>
+      <div class="result-time" id="resTime">0.00</div>
+      <div class="result-unit">segundos</div>
+
+      <div class="result-grid">
+        <div class="result-box">
+          <span class="k">Cuentas</span>
+          <span class="v">100</span>
+        </div>
+        <div class="result-box">
+          <span class="k">Errores</span>
+          <span class="v" id="resErrors">0</span>
+        </div>
+      </div>
+
+      <p class="res-msg" id="resMsg">¡Excelente trabajo!</p>
+
+      <div class="center">
+        <button class="btn btn-primary" id="btnRestart">Jugar de nuevo 🔁</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="overlay" id="secretModal">
+  <div class="modal">
+    <div class="modal-emoji">🎁</div>
+    <h3>¡Código secreto!</h3>
+    <p class="modal-sub">Has desbloqueado el acceso a tus sitios favoritos.<br>¿A cuál quieres ir?</p>
+
+    <div class="providers">
+      <button class="provider" data-prov="chatgpt">
+        <span class="dot" style="background:#10a37f">🤖</span> ChatGPT <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="gemini">
+        <span class="dot" style="background:linear-gradient(135deg,#4285f4,#9b72cb)">✨</span> Gemini <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="deepseek">
+        <span class="dot" style="background:#4d6bfe">🐋</span> DeepSeek <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="grok">
+        <span class="dot" style="background:#15171c">🚀</span> Grok <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="poki">
+        <span class="dot" style="background:linear-gradient(135deg,#ff4d6d,#ff8a3d)">🎮</span> Poki <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="youtube">
+        <span class="dot" style="background:#ff0000">▶️</span> YouTube <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="tiktok">
+        <span class="dot" style="background:linear-gradient(135deg,#25f4ee,#000000,#fe2c55)">🎵</span> TikTok <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="instagram">
+        <span class="dot" style="background:linear-gradient(135deg,#feda75,#d62976,#962fbf,#4f5bd5)">📸</span> Instagram <span class="arrow">›</span>
+      </button>
+      <button class="provider" data-prov="custom">
+        <span class="dot" style="background:linear-gradient(135deg,#fbbf24,#f97316)">🔗</span> Custom <span class="arrow">›</span>
+      </button>
+    </div>
+
+    <button class="btn btn-ghost full" id="secretClose">Cerrar y seguir jugando</button>
+  </div>
+</div>
+
+<div class="overlay" id="customModal" style="z-index:300">
+  <div class="modal">
+    <div class="modal-emoji">🔗</div>
+    <h3>Enlace personalizado</h3>
+    <p class="modal-sub">Escribe la dirección de la página que quieres abrir.</p>
+
+    <input id="customUrl" type="text" placeholder="https://ejemplo.com" autocomplete="off" spellcheck="false">
+    <div class="custom-error" id="customError"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="customCancel">Cancelar</button>
+      <button class="btn btn-primary" id="customOpen">Abrir</button>
+    </div>
+  </div>
+</div>
+
+<div class="webview" id="webview">
+  <div class="wv-bar">
+    <button class="wv-back" id="wvBack" title="Volver a la selección">← Volver</button>
+    <div class="wv-title" id="wvTitle">Navegador</div>
+    <a class="wv-external" id="wvExternal" href="#" target="_blank" rel="noopener noreferrer">Abrir ↗</a>
+  </div>
+  <div class="wv-note" id="wvNote">
+    Si la página no carga (algunos sitios bloquean la vista incrustada), usa «Abrir ↗».
+  </div>
+  <div class="wv-body">
+    <iframe id="wvFrame" src="about:blank" referrerpolicy="no-referrer" allow="clipboard-write; fullscreen"></iframe>
+  </div>
+</div>
+
+<script>
+const TOTAL = 100;
+
+const PROVEEDORES = {
+  chatgpt:   { nombre: 'ChatGPT',   url: 'https://chatgpt.com/' },
+  gemini:    { nombre: 'Gemini',    url: 'https://gemini.google.com/app' },
+  deepseek:  { nombre: 'DeepSeek',  url: 'https://chat.deepseek.com/' },
+  grok:      { nombre: 'Grok',      url: 'https://grok.com/' },
+  poki:      { nombre: 'Poki',      url: 'https://poki.com/' },
+  youtube:   { nombre: 'YouTube',   url: 'https://www.youtube.com/' },
+  tiktok:    { nombre: 'TikTok',    url: 'https://www.tiktok.com/' },
+  instagram: { nombre: 'Instagram', url: 'https://www.instagram.com/' }
+};
+
+const PALABRAS_PROHIBIDAS = ['gore', 'porn'];
+
+const state = {
+  questions: [],
+  idx: 0,
+  errors: 0,
+  start: 0,
+  timer: null,
+  running: false,
+  pausedAt: null
+};
+
+const $ = id => document.getElementById(id);
+
+function randInt(min, max){
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function feedback(texto, tipo){
+  const el = $('feedback');
+  el.textContent = texto;
+  el.className = 'feedback ' + (tipo || '');
+  clearTimeout(feedback._t);
+  feedback._t = setTimeout(() => { el.textContent = ''; el.className = 'feedback'; }, 1400);
+}
+
+function buildQuestions(){
+  const arr = [];
+  for (let i = 0; i < TOTAL; i++){
+    arr.push({ a: randInt(1, 12), b: randInt(1, 12) });
+  }
+  return arr;
+}
+
+function startGame(){
+  state.questions = buildQuestions();
+  state.idx = 0;
+  state.errors = 0;
+  state.running = true;
+  state.pausedAt = null;
+
+  $('hudErrors').textContent = '0';
+  $('hudTime').textContent = '0.0 s';
+  $('feedback').textContent = '';
+  $('feedback').className = 'feedback';
+  $('progressFill').style.width = '0%';
+
+  showScreen('gameScreen');
+  renderQuestion();
+
+  state.start = performance.now();
+  clearInterval(state.timer);
+  state.timer = setInterval(tick, 50);
+}
+
+function tick(){
+  const t = (performance.now() - state.start) / 1000;
+  $('hudTime').textContent = t.toFixed(1) + ' s';
+}
+
+function renderQuestion(){
+  const q = state.questions[state.idx];
+  $('question').innerHTML = `${q.a} <span class="op">×</span> ${q.b}`;
+  $('hudProgress').textContent = (state.idx + 1) + ' / ' + TOTAL;
+  $('progressFill').style.width = (state.idx / TOTAL * 100) + '%';
+
+  const input = $('answerInput');
+  input.value = '';
+  input.classList.remove('shake');
+  input.focus();
+}
+
+function shakeInput(){
+  const input = $('answerInput');
+  input.classList.remove('shake');
+  void input.offsetWidth;
+  input.classList.add('shake');
+}
+
+function checkAnswer(){
+  if (!state.running) return;
+
+  const input = $('answerInput');
+  const raw = input.value.trim();
+  if (raw === '') return;
+
+  if (raw === '6767'){
+    input.value = '';
+    abrirSecreto();
+    return;
+  }
+
+  const q = state.questions[state.idx];
+
+  if (Number(raw) === q.a * q.b){
+    feedback('¡Correcto! 🎉', 'ok');
+    state.idx++;
+    if (state.idx >= TOTAL){
+      finishGame();
+      return;
+    }
+    renderQuestion();
+  } else {
+    state.errors++;
+    $('hudErrors').textContent = state.errors;
+    feedback('¡Ups! Inténtalo otra vez 💪', 'bad');
+    shakeInput();
+    input.value = '';
+    input.focus();
+  }
+}
+
+function finishGame(){
+  state.running = false;
+  clearInterval(state.timer);
+
+  const elapsed = (performance.now() - state.start) / 1000;
+
+  $('progressFill').style.width = '100%';
+  $('hudProgress').textContent = TOTAL + ' / ' + TOTAL;
+
+  $('resTime').textContent = elapsed.toFixed(2);
+  $('resErrors').textContent = state.errors;
+  $('resMedal').textContent = medalla(state.errors);
+  $('resMsg').textContent = mensaje(state.errors);
+
+  showScreen('resultScreen');
+}
+
+function medalla(err){
+  if (err === 0) return '🏆';
+  if (err <= 5) return '🥇';
+  if (err <= 15) return '🥈';
+  if (err <= 30) return '🥉';
+  return '💪';
+}
+
+function mensaje(err){
+  if (err === 0) return '¡PERFECTO! Ni un solo error. Eres una calculadora humana 🤯';
+  if (err <= 5) return '¡Excelente! Casi perfecto, sigue así 🌟';
+  if (err <= 15) return '¡Muy bien! Vas por muy buen camino 👏';
+  if (err <= 30) return '¡Buen trabajo! Con un poco más de práctica lo bordas 💪';
+  return '¡Lo lograste! La práctica hace al maestro 📚';
+}
+
+function abrirSecreto(){
+  if (state.running){
+    state.pausedAt = performance.now();
+    state.running = false;
+    clearInterval(state.timer);
+  }
+  $('secretModal').classList.add('show');
+}
+
+function cerrarSecreto(){
+  $('secretModal').classList.remove('show');
+
+  if (state.pausedAt !== null){
+    state.start += performance.now() - state.pausedAt;
+    state.pausedAt = null;
+    state.running = true;
+    clearInterval(state.timer);
+    state.timer = setInterval(tick, 50);
+    setTimeout(() => $('answerInput').focus(), 60);
+  }
+}
+
+function abrirWebview(nombre, url){
+  $('wvTitle').textContent = nombre;
+  $('wvExternal').href = url;
+  $('wvFrame').src = url;
+  $('webview').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarWebview(){
+  $('webview').classList.remove('show');
+  $('wvFrame').src = 'about:blank';
+  document.body.style.overflow = '';
+}
+
+function volverASeleccion(){
+  cerrarWebview();
+  $('secretModal').classList.add('show');
+}
+
+function normalizarTexto(str){
+  return String(str)
+    .toLowerCase()
+    .replace(/0/g, 'o')
+    .replace(/1/g, 'i')
+    .replace(/3/g, 'e')
+    .replace(/4/g, 'a')
+    .replace(/5/g, 's')
+    .replace(/7/g, 't')
+    .replace(/@/g, 'a')
+    .replace(/\$/g, 's')
+    .replace(/[^a-z]/g, '');
+}
+
+function contieneProhibido(url){
+  let decodificada = url;
+  try { decodificada = decodeURIComponent(url); } catch (e) { }
+
+  const texto = normalizarTexto(url) + '|' + normalizarTexto(decodificada);
+  return PALABRAS_PROHIBIDAS.some(p => texto.includes(p));
+}
+
+function validarUrl(entrada){
+  let url = String(entrada || '').trim();
+
+  if (!url) return { ok: false, msg: 'Escribe un enlace primero.' };
+
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch (e) {
+    return { ok: false, msg: 'El enlace no es válido. Revisa que esté bien escrito.' };
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:'){
+    return { ok: false, msg: 'Solo se permiten enlaces http o https.' };
+  }
+
+  if (contieneProhibido(url)){
+    return {
+      ok: false,
+      msg: '🚫 Enlace bloqueado: contiene contenido no permitido (violencia explícita o contenido adulto).'
+    };
+  }
+
+  return { ok: true, url: parsed.href };
+}
+
+$('btnStart').addEventListener('click', startGame);
+$('btnRestart').addEventListener('click', startGame);
+
+$('answerForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  checkAnswer();
+});
+
+document.querySelectorAll('.provider').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const prov = btn.dataset.prov;
+
+    if (prov === 'custom'){
+      $('customModal').classList.add('show');
+      $('customError').textContent = '';
+      $('customUrl').value = '';
+      setTimeout(() => $('customUrl').focus(), 80);
+      return;
+    }
+
+    const info = PROVEEDORES[prov];
+    if (info) abrirWebview(info.nombre, info.url);
+  });
+});
+
+$('secretClose').addEventListener('click', cerrarSecreto);
+
+$('customCancel').addEventListener('click', () => {
+  $('customModal').classList.remove('show');
+});
+
+$('customOpen').addEventListener('click', () => {
+  const resultado = validarUrl($('customUrl').value);
+
+  if (!resultado.ok){
+    $('customError').textContent = resultado.msg;
+    return;
+  }
+
+  $('customError').textContent = '';
+  $('customModal').classList.remove('show');
+  abrirWebview('Enlace personalizado', resultado.url);
+});
+
+$('customUrl').addEventListener('keydown', e => {
+  if (e.key === 'Enter'){
+    e.preventDefault();
+    $('customOpen').click();
+  }
+});
+
+$('wvBack').addEventListener('click', volverASeleccion);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){
+    if ($('webview').classList.contains('show')) { volverASeleccion(); return; }
+    if ($('customModal').classList.contains('show')) { $('customModal').classList.remove('show'); return; }
+    if ($('secretModal').classList.contains('show')) { cerrarSecreto(); return; }
+  }
+
+  if (!state.running) return;
+  if ($('secretModal').classList.contains('show')) return;
+  if ($('customModal').classList.contains('show')) return;
+  if ($('webview').classList.contains('show')) return;
+
+  const input = $('answerInput');
+  if (document.activeElement !== input && /^[0-9]$/.test(e.key)){
+    input.focus();
+  }
+});
+
+window.addEventListener('focus', () => {
+  if (state.running && document.activeElement !== $('answerInput')){
+    $('answerInput').focus();
+  }
+});
+</script>
+</body>
+</html>
