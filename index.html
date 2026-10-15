@@ -16,7 +16,6 @@
     --violet:#8b5cf6;
     --green:#22c55e;
     --red:#ef4444;
-    --yellow:#fbbf24;
     --radius:26px;
   }
   html,body{height:100%}
@@ -246,13 +245,13 @@
   }
   .webview.show{display:flex}
   .wv-bar{
-    display:flex;align-items:center;gap:10px;
-    padding:10px 14px;background:#141c33;color:#fff;flex:0 0 auto;
+    display:flex;align-items:center;gap:8px;
+    padding:10px 12px;background:#141c33;color:#fff;flex:0 0 auto;
     box-shadow:0 4px 18px rgba(0,0,0,.35);z-index:2;
   }
   .wv-back{
     display:flex;align-items:center;gap:6px;
-    height:38px;padding:0 16px;flex:0 0 auto;
+    height:38px;padding:0 14px;flex:0 0 auto;
     border:none;border-radius:12px;
     background:linear-gradient(135deg,#4f7cff,#8b5cf6);
     color:#fff;font-family:'Nunito',sans-serif;
@@ -264,35 +263,58 @@
   .wv-back:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(79,124,255,.45)}
   .wv-back:active{transform:translateY(1px) scale(.98)}
   .wv-title{
-    font-family:'Baloo 2',cursive;font-size:18px;
+    font-family:'Baloo 2',cursive;font-size:17px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    min-width:0;
+    min-width:0;flex:1;
   }
+  .wv-proxy{
+    height:34px;padding:0 12px;flex:0 0 auto;
+    border:none;border-radius:10px;
+    background:#1e2947;color:#9db4ff;
+    font-family:'Nunito',sans-serif;font-size:12px;font-weight:900;
+    cursor:pointer;white-space:nowrap;
+    transition:background .2s, color .2s;
+  }
+  .wv-proxy:hover{background:#2a3860;color:#c8d6ff}
   .wv-external{
-    margin-left:auto;color:#9db4ff;font-weight:900;font-size:13px;
-    text-decoration:none;padding:8px 14px;border-radius:12px;
+    color:#9db4ff;font-weight:900;font-size:12px;
+    text-decoration:none;padding:8px 12px;border-radius:10px;
     background:#1e2947;white-space:nowrap;transition:background .2s;
     flex:0 0 auto;
   }
   .wv-external:hover{background:#2a3860}
   .wv-note{
     flex:0 0 auto;background:#fff7e6;color:#8a5a00;
-    font-size:12.5px;font-weight:800;text-align:center;
+    font-size:12px;font-weight:800;text-align:center;
     padding:7px 14px;line-height:1.4;
   }
   .wv-body{flex:1;position:relative;background:#fff;min-height:0}
   #wvFrame{width:100%;height:100%;border:0;display:block;background:#fff}
 
-  @media (max-width:520px){
+  .wv-loader{
+    position:absolute;inset:0;display:grid;place-items:center;
+    background:#fff;pointer-events:none;opacity:0;
+    transition:opacity .3s ease;z-index:1;
+  }
+  .wv-loader.show{opacity:1}
+  .spinner{
+    width:44px;height:44px;border-radius:50%;
+    border:4px solid #e3eaff;border-top-color:#4f7cff;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media (max-width:560px){
     .card{padding:24px 18px}
     .hud{gap:8px}
     .hud-value{font-size:19px}
     .answer-row{flex-direction:column;align-items:center}
     #answerInput{max-width:100%;width:100%}
     .answer-row .btn{width:100%}
-    .wv-title{font-size:15px}
-    .wv-external{padding:8px 10px;font-size:12px}
-    .wv-back{padding:0 12px;font-size:13px}
+    .wv-title{font-size:14px;flex:0 1 auto}
+    .wv-external{padding:8px 8px;font-size:11px}
+    .wv-back{padding:0 10px;font-size:12px}
+    .wv-proxy{padding:0 8px;font-size:11px}
   }
 </style>
 </head>
@@ -439,12 +461,14 @@
   <div class="wv-bar">
     <button class="wv-back" id="wvBack" title="Volver a la selección">← Volver</button>
     <div class="wv-title" id="wvTitle">Navegador</div>
+    <button class="wv-proxy" id="wvProxy" title="Probar otra ruta de bypass">Proxy 1/5</button>
     <a class="wv-external" id="wvExternal" href="#" target="_blank" rel="noopener noreferrer">Abrir ↗</a>
   </div>
   <div class="wv-note" id="wvNote">
-    Si la página no carga (algunos sitios bloquean la vista incrustada), usa «Abrir ↗».
+    Cargando vía proxy…
   </div>
   <div class="wv-body">
+    <div class="wv-loader show" id="wvLoader"><div class="spinner"></div></div>
     <iframe id="wvFrame" src="about:blank" referrerpolicy="no-referrer" allow="clipboard-write; fullscreen"></iframe>
   </div>
 </div>
@@ -465,6 +489,29 @@ const PROVEEDORES = {
 
 const PALABRAS_PROHIBIDAS = ['gore', 'porn'];
 
+const PROXIES = [
+  {
+    nombre: 'AllOrigins',
+    build: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u)
+  },
+  {
+    nombre: 'CodeTabs',
+    build: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
+  },
+  {
+    nombre: 'CorsProxy.io',
+    build: u => 'https://corsproxy.io/?url=' + encodeURIComponent(u)
+  },
+  {
+    nombre: 'ThingProxy',
+    build: u => 'https://thingproxy.freeboard.io/fetch/' + u
+  },
+  {
+    nombre: 'Directo',
+    build: u => u
+  }
+];
+
 const state = {
   questions: [],
   idx: 0,
@@ -473,6 +520,13 @@ const state = {
   timer: null,
   running: false,
   pausedAt: null
+};
+
+const wv = {
+  baseUrl: '',
+  nombre: '',
+  proxyIndex: 0,
+  loadTimeout: null
 };
 
 const $ = id => document.getElementById(id);
@@ -636,16 +690,52 @@ function cerrarSecreto(){
 }
 
 function abrirWebview(nombre, url){
+  wv.baseUrl = url;
+  wv.nombre = nombre;
+  wv.proxyIndex = 0;
+
   $('wvTitle').textContent = nombre;
   $('wvExternal').href = url;
-  $('wvFrame').src = url;
+
+  aplicarProxy();
+
   $('webview').classList.add('show');
   document.body.style.overflow = 'hidden';
 }
 
+function aplicarProxy(){
+  const p = PROXIES[wv.proxyIndex];
+  const proxied = p.build(wv.baseUrl);
+
+  const loader = $('wvLoader');
+  loader.classList.add('show');
+
+  clearTimeout(wv.loadTimeout);
+  wv.loadTimeout = setTimeout(() => {
+    loader.classList.remove('show');
+  }, 12000);
+
+  $('wvFrame').onload = () => {
+    clearTimeout(wv.loadTimeout);
+    loader.classList.remove('show');
+  };
+
+  $('wvFrame').src = proxied;
+
+  $('wvProxy').textContent = `${p.nombre} · ${wv.proxyIndex + 1}/${PROXIES.length}`;
+
+  if (p.nombre === 'Directo'){
+    $('wvNote').textContent = '⚠️ Modo directo: la mayoría de sitios bloquean el iframe. Usa «Cambiar proxy» o «Abrir ↗».';
+  } else {
+    $('wvNote').textContent = `🛡️ Bypass activo vía ${p.nombre}. Si la página aparece en blanco o con error, pulsa «Cambiar proxy».`;
+  }
+}
+
 function cerrarWebview(){
+  clearTimeout(wv.loadTimeout);
   $('webview').classList.remove('show');
   $('wvFrame').src = 'about:blank';
+  $('wvLoader').classList.remove('show');
   document.body.style.overflow = '';
 }
 
@@ -756,6 +846,11 @@ $('customUrl').addEventListener('keydown', e => {
 });
 
 $('wvBack').addEventListener('click', volverASeleccion);
+
+$('wvProxy').addEventListener('click', () => {
+  wv.proxyIndex = (wv.proxyIndex + 1) % PROXIES.length;
+  aplicarProxy();
+});
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){
